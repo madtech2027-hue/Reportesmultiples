@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Reporte de Jornada</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    body { background-color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
+    input, select, textarea { font-size: 16px !important; }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen p-2.5 flex flex-col justify-between max-w-md mx-auto">
+  <div class="w-full space-y-3">
+
+    <header class="bg-indigo-700 text-white px-3.5 py-2.5 rounded-xl shadow-sm flex items-center justify-between gap-2">
+      <div class="flex items-center space-x-2.5 overflow-hidden">
+        <div class="bg-white/20 p-2 rounded-lg shrink-0 text-base">📋</div>
+        <div class="truncate">
+          <h1 class="text-xs sm:text-sm font-bold leading-tight truncate">Reporte de Jornada</h1>
+          <p class="text-indigo-200 text-[10px]">Control Rápido Móvil</p>
+        </div>
+      </div>
+      <button id="openConfigBtn" class="bg-indigo-800 hover:bg-indigo-900 text-indigo-100 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-indigo-500/35 transition shrink-0">
+        ⚙️ Configurar
+      </button>
+    </header>
+
+    <section id="stepForm" class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] shrink-0 font-bold">1</span>
+          Datos de la Jornada
+        </h2>
+      </div>
+
+      <form class="space-y-2.5" id="mainForm">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Empresa / Cliente Atendido</label>
+          <input type="text" id="empresaInput" placeholder="Ej. GRUPO TOVA"
+            class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Fecha</label>
+          <input type="date" id="fechaInput"
+            class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Hora Inicio</label>
+            <input type="time" id="horaInicioInput"
+              class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Hora Fin</label>
+            <input type="time" id="horaFinInput"
+              class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nombre del Responsable</label>
+          <input type="text" id="nombreInput" placeholder="Tu nombre"
+            class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pruebas / Ítems</p>
+            <button type="button" id="addPruebaBtn" class="text-[11px] bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold px-2.5 py-1 rounded-md transition shrink-0">
+              ➕ Añadir
+            </button>
+          </div>
+
+          <div id="pruebasContainer" class="space-y-1.5"></div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Observaciones</label>
+          <textarea id="obsInput" rows="1" placeholder="Notas adicionales..."
+            class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"></textarea>
+        </div>
+      </form>
+
+      <div class="pt-1 space-y-2.5">
+        <div class="bg-indigo-50 p-2.5 rounded-lg border border-indigo-100 flex items-center justify-between">
+          <span class="text-[11px] font-bold text-indigo-900 uppercase">Total Pacientes:</span>
+          <span id="totalPacientesBadge" class="text-xl font-black text-indigo-700">0</span>
+        </div>
+
+        <button id="previewBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs">
+          👁️ Generar Previsualización
+        </button>
+      </div>
+    </section>
+
+    <section id="stepPreview" class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 space-y-3 hidden">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] shrink-0 font-bold">2</span>
+          Previsualización
+        </h2>
+        <button id="backBtn" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold bg-indigo-50 px-2.5 py-1 rounded-md">
+          ✏️ Editar
+        </button>
+      </div>
+
+      <div id="reportCard" style="background-color: #ffffff; width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; color: #1e293b;">
+
+        <table style="width: 100%; border-collapse: collapse; background-color: #31108d; color: #ffffff;">
+          <tr>
+            <td style="padding: 12px 14px 8px 14px; vertical-align: middle;">
+              <div style="font-size: 9px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; color: #cbd5e1;">Control Diario</div>
+              <div style="font-size: 13px; font-weight: 900; margin-top: 2px;">📋 REPORTE DE JORNADA</div>
+            </td>
+            <td style="padding: 12px 14px 8px 14px; text-align: right; vertical-align: middle;">
+              <span id="cardFecha" style="display: inline-block; background-color: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 6px; color: #ffffff;">
+                --/--/----
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" style="padding: 0 14px 10px 14px;">
+              <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 8px;">
+                <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">🏢 Empresa: &nbsp;</span>
+                <span id="cardEmpresa" style="font-size: 11px; font-weight: 700; background-color: rgba(255, 255, 255, 0.2); padding: 2px 8px; border-radius: 4px; color: #ffffff;">Sin especificar</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <div style="padding: 12px; background-color: #f8fafc;">
+          <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px;">
+            <tr>
+              <td style="width: 50%; padding: 8px 10px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
+                <div style="font-size: 8px; color: #64748b; font-weight: 700; text-transform: uppercase;">⏰ Horario</div>
+                <div id="cardTurno" style="font-size: 10px; font-weight: 700; color: #334155; margin-top: 2px;">Por definir</div>
+              </td>
+              <td style="width: 50%; padding: 8px 10px; vertical-align: middle;">
+                <div style="font-size: 8px; color: #64748b; font-weight: 700; text-transform: uppercase;">👤 Responsable</div>
+                <div id="cardNombre" style="font-size: 10px; font-weight: 700; color: #334155; margin-top: 2px;">Por definir</div>
+              </td>
+            </tr>
+          </table>
+
+          <div style="background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px;">
+            <div style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px;">🧪 Pruebas Realizadas</div>
+            <div id="cardPruebasContainer"></div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; background: linear-gradient(to right, #4338ca, #31108d); border-radius: 8px; margin-bottom: 10px;">
+            <tr>
+              <td style="padding: 10px 14px; vertical-align: middle;">
+                <div style="font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #cbd5e1;">Total Atenciones</div>
+                <div style="font-size: 10px; color: #e2e8f0; margin-top: 1px;">Pacientes en la jornada</div>
+              </td>
+              <td style="padding: 10px 14px; text-align: right; vertical-align: middle; width: 70px;">
+                <span id="cardTotal" style="display: inline-block; font-size: 16px; font-weight: 900; background-color: rgba(255, 255, 255, 0.25); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; text-align: center;">
+                  0
+                </span>
+              </td>
+            </tr>
+          </table>
+
+          <div id="cardObsContainer" style="background-color: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 8px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">📝 Observaciones</div>
+            <div id="cardObs" style="font-size: 10px; color: #475569; font-style: italic;">Sin observaciones agregadas.</div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; background-color: #f1f5f9; border-top: 1px solid #e2e8f0;">
+          <tr>
+            <td style="padding: 8px 14px; font-size: 8px; color: #94a3b8; vertical-align: middle;">Reporte de Jornada</td>
+            <td style="padding: 8px 14px; font-size: 8px; color: #94a3b8; text-align: right; vertical-align: middle;">Uso Personal</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button id="downloadBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl shadow transition text-xs">
+          📥 Descargar
+        </button>
+        <button id="copyTextBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl shadow transition text-xs">
+          💬 WhatsApp
+        </button>
+      </div>
+
+      <p id="statusMsg" class="text-[11px] text-center font-semibold text-emerald-600 hidden">
+        ¡Acción realizada con éxito!
+      </p>
+    </section>
+
+  </div>
+
+  <div id="configModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden space-y-3 p-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="text-xs font-bold text-slate-800">⚙️ Gestionar Pruebas</h3>
+        <button id="closeConfigBtn" class="text-slate-400 hover:text-slate-600 text-xs font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-[11px] text-slate-500">Agrega o elimina exámenes de la lista.</p>
+
+        <div class="flex gap-1.5">
+          <input type="text" id="newTestInput" placeholder="Nueva prueba..."
+            class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500" />
+          <button type="button" id="addNewTestBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">
+            ➕
+          </button>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden max-h-40 overflow-y-auto divide-y divide-slate-100" id="testListContainer"></div>
+      </div>
+
+      <div class="pt-1 flex justify-end">
+        <button id="saveConfigBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+          Listo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center text-[10px] text-slate-400 py-1.5">
+    Control de Jornada &bull; Móvil
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const defaultTests = [
+        'Embarazo en Sangre (hCG)',
+        'Antidoping en Orina',
+        'Rutinas / Otros Exámenes',
+        'Glucosa Capilar',
+        'Perfil Lipídico'
+      ];
+
+      function getStoredTests() {
+        const stored = localStorage.getItem('jornada_custom_tests_compact');
+        return stored ? JSON.parse(stored) : defaultTests;
+      }
+
+      function saveStoredTests(tests) {
+        localStorage.setItem('jornada_custom_tests_compact', JSON.stringify(tests));
+      }
+
+      const empresaInput = document.getElementById('empresaInput');
+      const fechaInput = document.getElementById('fechaInput');
+      const horaInicioInput = document.getElementById('horaInicioInput');
+      const horaFinInput = document.getElementById('horaFinInput');
+      const nombreInput = document.getElementById('nombreInput');
+      const obsInput = document.getElementById('obsInput');
+
+      const pruebasContainer = document.getElementById('pruebasContainer');
+      const addPruebaBtn = document.getElementById('addPruebaBtn');
+
+      const cardEmpresa = document.getElementById('cardEmpresa');
+      const cardFecha = document.getElementById('cardFecha');
+      const cardTurno = document.getElementById('cardTurno');
+      const cardNombre = document.getElementById('cardNombre');
+      const cardPruebasContainer = document.getElementById('cardPruebasContainer');
+      const cardTotal = document.getElementById('cardTotal');
+      const cardObs = document.getElementById('cardObs');
+      const totalPacientesBadge = document.getElementById('totalPacientesBadge');
+
+      const stepForm = document.getElementById('stepForm');
+      const stepPreview = document.getElementById('stepPreview');
+      const previewBtn = document.getElementById('previewBtn');
+      const backBtn = document.getElementById('backBtn');
+
+      const openConfigBtn = document.getElementById('openConfigBtn');
+      const closeConfigBtn = document.getElementById('closeConfigBtn');
+      const saveConfigBtn = document.getElementById('saveConfigBtn');
+      const configModal = document.getElementById('configModal');
+      const newTestInput = document.getElementById('newTestInput');
+      const addNewTestBtn = document.getElementById('addNewTestBtn');
+      const testListContainer = document.getElementById('testListContainer');
+
+      const today = new Date().toISOString().split('T')[0];
+      fechaInput.value = today;
+      horaInicioInput.value = '07:00';
+      horaFinInput.value = '12:00';
+
+      function actualizarSelectsDropdowns() {
+        const tests = getStoredTests();
+        document.querySelectorAll('.tipo-select').forEach(select => {
+          const valorActual = select.value;
+          select.innerHTML = '';
+          tests.forEach(test => {
+            const opt = document.createElement('option');
+            opt.value = test;
+            opt.textContent = test;
+            if (test === valorActual) opt.selected = true;
+            select.appendChild(opt);
+          });
+        });
+      }
+
+      function renderTestListModal() {
+        const tests = getStoredTests();
+        testListContainer.innerHTML = '';
+        tests.forEach((test, index) => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 text-xs bg-white hover:bg-slate-50';
+          div.innerHTML = `
+            <span class="font-medium text-slate-700 truncate pr-2">${test}</span>
+            <button type="button" class="text-slate-400 hover:text-red-500 transition delete-test-btn p-1 shrink-0">🗑️</button>
+          `;
+          div.querySelector('.delete-test-btn').addEventListener('click', () => {
+            let currentTests = getStoredTests();
+            if (currentTests.length > 1) {
+              currentTests.splice(index, 1);
+              saveStoredTests(currentTests);
+              renderTestListModal();
+              actualizarSelectsDropdowns();
+            } else {
+              alert('Debes mantener al menos una prueba.');
+            }
+          });
+          testListContainer.appendChild(div);
+        });
+      }
+
+      openConfigBtn.addEventListener('click', () => {
+        renderTestListModal();
+        configModal.classList.remove('hidden');
+      });
+
+      closeConfigBtn.addEventListener('click', () => configModal.classList.add('hidden'));
+      saveConfigBtn.addEventListener('click', () => configModal.classList.add('hidden'));
+
+      addNewTestBtn.addEventListener('click', () => {
+        const nuevoTexto = newTestInput.value.trim();
+        if (nuevoTexto) {
+          let tests = getStoredTests();
+          if (!tests.includes(nuevoTexto)) {
+            tests.push(nuevoTexto);
+            saveStoredTests(tests);
+            newTestInput.value = '';
+            renderTestListModal();
+            actualizarSelectsDropdowns();
+          } else {
+            alert('Esta prueba ya existe.');
+          }
+        }
+      });
+
+      function agregarFilaPrueba(tipoDefecto = '', cantDefecto = '') {
+        const tests = getStoredTests();
+        const row = document.createElement('div');
+        row.className = 'prueba-row flex gap-1.5 items-center bg-slate-50 p-2 rounded-lg border border-slate-200';
+
+        let optionsHtml = '';
+        tests.forEach(t => {
+          const sel = (t === tipoDefecto) ? 'selected' : '';
+          optionsHtml += `<option value="${t}" ${sel}>${t}</option>`;
+        });
+
+        row.innerHTML = `
+          <select class="tipo-select w-full px-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 truncate">
+            ${optionsHtml}
+          </select>
+          <input type="number" min="0" placeholder="Cant" value="${cantDefecto}" class="cant-input w-14 px-1 py-1.5 bg-white border border-slate-200 rounded-md text-center font-bold text-indigo-700 text-xs shrink-0" />
+          <button type="button" class="remove-row text-slate-400 hover:text-red-500 p-1 transition shrink-0">🗑️</button>
+        `;
+
+        row.querySelector('.remove-row').addEventListener('click', () => {
+          if (document.querySelectorAll('.prueba-row').length > 1) {
+            row.remove();
+            actualizarSuma();
+          } else {
+            alert('Debes mantener al menos una prueba.');
+          }
+        });
+
+        row.querySelector('.cant-input').addEventListener('input', actualizarSuma);
+        pruebasContainer.appendChild(row);
+      }
+
+      const initialTests = getStoredTests();
+      agregarFilaPrueba(initialTests[0], '');
+
+      addPruebaBtn.addEventListener('click', () => {
+        const tests = getStoredTests();
+        agregarFilaPrueba(tests[1] || tests[0], '');
+      });
+
+      function calcularTotal() {
+        let total = 0;
+        document.querySelectorAll('.cant-input').forEach(input => {
+          total += parseInt(input.value) || 0;
+        });
+        return total;
+      }
+
+      function actualizarSuma() {
+        totalPacientesBadge.textContent = calcularTotal();
+      }
+
+      function formatearHora(horaStr) {
+        if (!horaStr) return '';
+        let [h, m] = horaStr.split(':');
+        let hour = parseInt(h);
+        let ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        return `${hour}:${m} ${ampm}`;
+      }
+
+      previewBtn.addEventListener('click', () => {
+        const empresaVal = empresaInput.value.trim() || 'Sin especificar';
+        const fechaVal = fechaInput.value ? fechaInput.value.split('-').reverse().join('/') : '--/--/----';
+
+        const hInicio = formatearHora(horaInicioInput.value);
+        const hFin = formatearHora(horaFinInput.value);
+        const turnoVal = (hInicio && hFin) ? `${hInicio} - ${hFin}` : 'Por definir';
+
+        const nombreVal = nombreInput.value.trim() || 'Por definir';
+        const obsVal = obsInput.value.trim() || 'Sin observaciones agregadas.';
+
+        cardEmpresa.textContent = empresaVal;
+        cardFecha.textContent = fechaVal;
+        cardTurno.textContent = turnoVal;
+        cardNombre.textContent = nombreVal;
+        cardObs.textContent = obsVal;
+        cardTotal.textContent = calcularTotal();
+
+        cardPruebasContainer.innerHTML = '';
+        let rowsAdded = 0;
+
+        document.querySelectorAll('.prueba-row').forEach((row) => {
+          const tipo = row.querySelector('.tipo-select').value;
+          const cant = parseInt(row.querySelector('.cant-input').value) || 0;
+
+          if (cant > 0) {
+            rowsAdded++;
+            const div = document.createElement('div');
+            div.style.cssText = 'padding: 4px 0; border-bottom: 1px solid #f1f5f9; font-size: 10px;';
+            div.innerHTML = `
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="color: #475569; font-weight: 500; text-align: left; vertical-align: middle;">• ${tipo}</td>
+                  <td style="width: 50px; text-align: right; vertical-align: middle;"><span style="font-weight: 700; color: #1e293b; background-color: #f1f5f9; padding: 2px 8px; border-radius: 4px; display: inline-block;">${cant}</span></td>
+                </tr>
+              </table>
+            `;
+            cardPruebasContainer.appendChild(div);
+          }
+        });
+
+        if (rowsAdded === 0) {
+          cardPruebasContainer.innerHTML = '<div style="color: #94a3b8; font-style: italic; text-align: center; font-size: 10px; padding: 2px;">No se ingresaron cantidades.</div>';
+        }
+
+        stepForm.classList.add('hidden');
+        stepPreview.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      backBtn.addEventListener('click', () => {
+        stepPreview.classList.add('hidden');
+        stepForm.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      function reiniciarApp() {
+        document.getElementById('mainForm').reset();
+        fechaInput.value = new Date().toISOString().split('T')[0];
+        horaInicioInput.value = '07:00';
+        horaFinInput.value = '12:00';
+
+        pruebasContainer.innerHTML = '';
+        const tests = getStoredTests();
+        agregarFilaPrueba(tests[0], '');
+        actualizarSuma();
+
+        stepPreview.classList.add('hidden');
+        stepForm.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.getElementById('downloadBtn').addEventListener('click', () => {
+        const cardNode = document.getElementById('reportCard');
+        const statusMsg = document.getElementById('statusMsg');
+
+        statusMsg.textContent = 'Generando imagen...';
+        statusMsg.classList.remove('hidden');
+
+        setTimeout(() => {
+          html2canvas(cardNode, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true
+          }).then(canvas => {
+            const link = document.createElement('a');
+            const dateStr = fechaInput.value || 'reporte';
+            link.download = `Reporte_Jornada_${dateStr}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            statusMsg.textContent = '¡Descargado! Nuevo reporte listo.';
+            setTimeout(() => {
+              statusMsg.classList.add('hidden');
+              reiniciarApp();
+            }, 1500);
+          });
+        }, 200);
+      });
+
+      document.getElementById('copyTextBtn').addEventListener('click', () => {
+        const fechaVal = fechaInput.value ? fechaInput.value.split('-').reverse().join('/') : '--/--/----';
+        const total = cardTotal.textContent;
+
+        let textoPruebas = '';
+        document.querySelectorAll('.prueba-row').forEach(row => {
+          const typeSelect = row.querySelector('.tipo-select');
+          const typeVal = typeSelect ? typeSelect.value : '';
+          const cantInput = row.querySelector('.cant-input');
+          const cant = cantInput ? parseInt(cantInput.value) || 0 : 0;
+          if (cant > 0) {
+            textoPruebas += `• ${typeVal}: ${cant}\n`;
+          }
+        });
+
+        const text = `📋 *REPORTE DE JORNADA*\n` +
+                     `🏢 *Empresa:* ${cardEmpresa.textContent}\n` +
+                     `📅 *Fecha:* ${fechaVal}\n` +
+                     `⏰ *Horario:* ${cardTurno.textContent}\n` +
+                     `👤 *Responsable:* ${cardNombre.textContent}\n\n` +
+                     `🧪 *PRUEBAS REALIZADAS:*\n` +
+                     (textoPruebas || '• Ninguna especificada\n') + `\n` +
+                     `👥 *TOTAL PACIENTES:* ${total}\n` +
+                     `📝 *Observaciones:* ${cardObs.textContent}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+          const statusMsg = document.getElementById('statusMsg');
+          statusMsg.textContent = '¡Copiado! Nuevo reporte listo.';
+          statusMsg.classList.remove('hidden');
+
+          setTimeout(() => {
+            statusMsg.classList.add('hidden');
+            reiniciarApp();
+          }, 1500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
